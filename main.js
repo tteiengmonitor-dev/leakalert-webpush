@@ -14,12 +14,19 @@ firebase.initializeApp(firebaseConfig);
 // Messaging
 const messaging = firebase.messaging();
 
-// Register service worker
-navigator.serviceWorker.register("./firebase-messaging-sw.js")
+// เก็บ service worker registration ไว้ใช้ตอน getToken
+let swRegistration = null;
+
+// Register service worker (สำคัญมาก)
+navigator.serviceWorker
+  .register("./firebase-messaging-sw.js")
   .then((registration) => {
     console.log("✅ Service Worker registered");
+    swRegistration = registration;
   })
-  .catch(err => console.error("SW error", err));
+  .catch((err) => {
+    console.error("❌ Service Worker register error", err);
+  });
 
 // Button click
 document.getElementById("subscribeBtn").addEventListener("click", async () => {
@@ -30,15 +37,21 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
       return;
     }
 
+    if (!swRegistration) {
+      alert("❌ Service Worker ยังไม่พร้อม ลอง refresh หน้าเว็บ");
+      return;
+    }
+
     const token = await messaging.getToken({
-      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq3IyhSOCfNnW63tDD597sKnSFd2qtcFI2uGMdCJ-SMy7H6szRHtqC7ZU72wNPYLmo"
+      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq3IyhSOCfNnW63tDD597sKnSFd2qtcFI2uGMdCJ-SMy7H6szRHtqC7ZU72wNPYLmo",
+      serviceWorkerRegistration: swRegistration
     });
 
     console.log("🔥 FCM TOKEN:", token);
     alert("✅ สมัครรับแจ้งเตือนแล้ว (ดู token ใน console)");
 
   } catch (err) {
-    console.error("ERROR:", err);
+    console.error("❌ ERROR:", err);
     alert("❌ Error ดูที่ console");
   }
 });
