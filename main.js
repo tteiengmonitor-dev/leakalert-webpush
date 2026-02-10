@@ -18,7 +18,7 @@ let swRegistration = null;
 let swReady = false;
 
 // 🔧 ใส่ URL ของ Google Apps Script Web App
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyWoxpL2M-QUT5KTgW63YSH0aqkbrj5LukZ5O6l06F9foVPob0GD3gsRgiw4BBiQvI7/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzNldTeneT6x36lChkG8J1zyq9cDSFJsrAU7BUWa4jwaIeVgInLrP7ZBPjJmb4ED2DS/exec";
 
 // Register service worker
 navigator.serviceWorker
