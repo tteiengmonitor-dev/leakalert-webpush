@@ -32,7 +32,7 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     }
 
     const token = await messaging.getToken({
-      vapidKey: "PUT_YOUR_VAPID_KEY_HERE"
+      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq3IyhSOCfNnW63tDD597sKnSFd2qtcFI2uGMdCJ-SMy7H6szRHtqC7ZU72wNPYLmo"
     });
 
     console.log("🔥 FCM TOKEN:", token);
