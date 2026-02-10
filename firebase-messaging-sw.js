@@ -2,7 +2,6 @@
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
 
-// Firebase config (ต้องตรงกับ main.js)
 firebase.initializeApp({
   apiKey: "AIzaSyDJh-QdJ0O-1s-puzkumt_XWWHi1mwA61Q",
   authDomain: "leakalert-d4bfa.firebaseapp.com",
@@ -14,13 +13,40 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// รับ push ตอนเว็บไม่ได้เปิดอยู่
+// รับ data message
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || "LeakAlert";
+  const title = payload.data?.title || "LeakAlert";
   const options = {
-    body: payload.notification?.body || "มีการแจ้งเตือนใหม่",
-    icon: "/icon.png" // มีหรือไม่มีก็ได้
+    body: payload.data?.body || "มีการแจ้งเตือนใหม่",
+    icon: "/icon.png",
+    data: {
+      url: payload.data?.url // 👈 เก็บ URL ไว้กับ notification
+    }
   };
 
   self.registration.showNotification(title, options);
+});
+
+// 👉 เมื่อ user คลิก notification
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url;
+  if (!url) return;
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        // ถ้ามี tab เปิดอยู่แล้ว → focus
+        for (const client of clientList) {
+          if (client.url === url && "focus" in client) {
+            return client.focus();
+          }
+        }
+        // ไม่มีก็เปิดใหม่
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
+      })
+  );
 });
