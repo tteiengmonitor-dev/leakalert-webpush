@@ -19,7 +19,7 @@ let swReady = false;
 
 // 🔧 Google Apps Script Web App URL
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzNldTeneT6x36lChkG8J1zyq9cDSFJsrAU7BUWa4jwaIeVgInLrP7ZBPjJmb4ED2DS/exec";
+  "https://script.google.com/macros/s/AKfycbzzwcNDOSn2YfY19kX-b9atvQ7dVbVXMS7bHMkzlpb6W9oEMu3l4O1XT7ItOrbuxTEC/exec";
 
 // Register service worker
 navigator.serviceWorker
