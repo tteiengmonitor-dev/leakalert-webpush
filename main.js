@@ -17,7 +17,6 @@ const messaging = firebase.messaging();
 // Register service worker
 navigator.serviceWorker.register("firebase-messaging-sw.js")
   .then((registration) => {
-    messaging.useServiceWorker(registration);
     console.log("✅ Service Worker registered");
   })
   .catch(err => console.error("SW error", err));
