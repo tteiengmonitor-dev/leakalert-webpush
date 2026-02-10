@@ -17,8 +17,9 @@ const messaging = firebase.messaging();
 let swRegistration = null;
 let swReady = false;
 
-// 🔧 ใส่ URL ของ Google Apps Script Web App
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzNldTeneT6x36lChkG8J1zyq9cDSFJsrAU7BUWa4jwaIeVgInLrP7ZBPjJmb4ED2DS/exec";
+// 🔧 Google Apps Script Web App URL
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzNldTeneT6x36lChkG8J1zyq9cDSFJsrAU7BUWa4jwaIeVgInLrP7ZBPjJmb4ED2DS/exec";
 
 // Register service worker
 navigator.serviceWorker
@@ -47,21 +48,22 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     }
 
     const token = await messaging.getToken({
-      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq31yhS0CfNnW63tDD597sKnSFd2qtcFl2uGMdCJ-SMy7H6szRHTqC7ZU72wNPYLmo",
+      vapidKey:
+        "BNh9e0Zvd4lxWptKQX_BgYq31yhS0CfNnW63tDD597sKnSFd2qtcFl2uGMdCJ-SMy7H6szRHTqC7ZU72wNPYLmo",
       serviceWorkerRegistration: swRegistration
     });
 
     console.log("🔥 FCM TOKEN:", token);
 
-    // ✅ ส่ง token + เวลากดรับแจ้ง ไปที่ GAS
+    // ✅ ใช้ FormData (ไม่โดน CORS preflight)
+    const formData = new FormData();
+    formData.append("action", "saveToken");
+    formData.append("token", token);
+    formData.append("subscribedAt", new Date().toISOString());
+
     await fetch(GAS_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "saveToken",
-        token: token,
-        subscribedAt: new Date().toISOString()
-      })
+      body: formData
     });
 
     alert("✅ สมัครรับแจ้งเตือนเรียบร้อย");
