@@ -11,27 +11,102 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 40px;
+    *{
+      box-sizing:border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    button {
-      font-size: 18px;
-      padding: 12px 24px;
-      cursor: pointer;
+
+    body{
+      height:100vh;
+      margin:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    }
+
+    .card{
+      background:#ffffff;
+      padding:42px 52px;
+      border-radius:20px;
+      box-shadow:0 20px 45px rgba(0,0,0,.28);
+      text-align:center;
+      width:340px;
+    }
+
+    .icon{
+      font-size:44px;
+      margin-bottom:8px;
+    }
+
+    h2{
+      margin:0 0 8px 0;
+      font-size:26px;
+      color:#1f2937;
+    }
+
+    p{
+      margin:0 0 28px 0;
+      font-size:14px;
+      color:#6b7280;
+    }
+
+    button{
+      width:100%;
+      border:none;
+      padding:15px 28px;
+      border-radius:999px;
+      font-size:16px;
+      font-weight:600;
+      cursor:pointer;
+      color:#fff;
+      background: linear-gradient(135deg,#ff512f,#dd2476);
+      box-shadow:0 10px 22px rgba(221,36,118,.45);
+      transition: all .2s ease;
+    }
+
+    button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 32px rgba(221,36,118,.6);
+    }
+
+    button:active{
+      transform:translateY(0);
+      box-shadow:0 7px 16px rgba(221,36,118,.45);
+    }
+
+    button:disabled{
+      background:#9ca3af;
+      box-shadow:none;
+      cursor:not-allowed;
+    }
+
+    .footer{
+      margin-top:28px;
+      font-size:12px;
+      color:#9ca3af;
     }
   </style>
 </head>
 <body>
 
-  <h2>🔔 LeakAlert Web Push</h2>
-  <p>กดเพื่อรับการแจ้งเตือนผ่าน Browser</p>
+  <div class="card">
+    <div class="icon">🔔</div>
 
-  <button id="subscribeBtn">เปิดแจ้งเตือน</button>
+    <h2>LeakAlert</h2>
+    <p>กดเพื่อรับการแจ้งเตือนลมรั่วผ่าน Browser</p>
+
+    <!-- ❗ id เดิม ใช้ main.js ได้ทันที -->
+    <button id="subscribeBtn">เปิดแจ้งเตือน</button>
+
+    <div class="footer">
+      TTEI · Air Leakage Monitoring
+    </div>
+  </div>
 
   <noscript>กรุณาเปิด JavaScript</noscript>
 
+  <!-- ❗ main.js เดิม ไม่ต้องแก้ -->
   <script src="main.js"></script>
 </body>
 </html>
