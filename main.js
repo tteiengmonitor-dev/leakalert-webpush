@@ -8,7 +8,7 @@ const firebaseConfig = {
   appId: "1:397827695381:web:253e42a474b8abeb89ff1c"
 };
 
-// Init Firebase (compat)
+// Init Firebase
 firebase.initializeApp(firebaseConfig);
 
 // Messaging
@@ -18,26 +18,28 @@ const messaging = firebase.messaging();
 navigator.serviceWorker.register("firebase-messaging-sw.js")
   .then((registration) => {
     messaging.useServiceWorker(registration);
-  });
+    console.log("✅ Service Worker registered");
+  })
+  .catch(err => console.error("SW error", err));
 
 // Button click
 document.getElementById("subscribeBtn").addEventListener("click", async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      alert("ยังไม่ได้อนุญาตแจ้งเตือน");
+      alert("❌ ยังไม่ได้อนุญาตแจ้งเตือน");
       return;
     }
 
     const token = await messaging.getToken({
-      vapidKey: "PUT_YOUR_VAPID_KEY"
+      vapidKey: "PUT_YOUR_VAPID_KEY_HERE"
     });
 
     console.log("🔥 FCM TOKEN:", token);
-    alert("สมัครรับแจ้งเตือนเรียบร้อย");
+    alert("✅ สมัครรับแจ้งเตือนแล้ว (ดู token ใน console)");
 
   } catch (err) {
-    console.error(err);
-    alert("Error ดูที่ console");
+    console.error("ERROR:", err);
+    alert("❌ Error ดูที่ console");
   }
 });
