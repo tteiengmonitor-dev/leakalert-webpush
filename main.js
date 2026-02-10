@@ -44,7 +44,7 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     }
 
     const token = await messaging.getToken({
-      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq3IyhSOCfNnW63tDD597sKnSFd2qtcFI2uGMdCJ-SMy7H6szRHtqC7ZU72wNPYLmo",
+      vapidKey: "BNh9e0Zvd4lxWptKQX_BgYq31yhS0CfNnW63tDD597sKnSFd2qtcFl2uGMdCJ-SMy7H6szRHTqC7ZU72wNPYLmo",
       serviceWorkerRegistration: swRegistration
     });
 
