@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // Register service worker
-navigator.serviceWorker.register("firebase-messaging-sw.js")
+navigator.serviceWorker.register("./firebase-messaging-sw.js")
   .then((registration) => {
     console.log("✅ Service Worker registered");
   })
