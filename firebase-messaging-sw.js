@@ -4,7 +4,7 @@ importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-comp
 
 // Firebase config (ต้องตรงกับ main.js)
 firebase.initializeApp({
-  apiKey: "AIzaSyDJh-QdJ00-1s-puzkumt_XWWhi1mwA61Q",
+  apiKey: "AIzaSyDJh-QdJ0O-1s-puzkumt_XWWHi1mwA61Q",
   authDomain: "leakalert-d4bfa.firebaseapp.com",
   projectId: "leakalert-d4bfa",
   storageBucket: "leakalert-d4bfa.firebasestorage.app",
