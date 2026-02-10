@@ -14,15 +14,16 @@ firebase.initializeApp(firebaseConfig);
 // Messaging
 const messaging = firebase.messaging();
 
-// เก็บ service worker registration ไว้ใช้ตอน getToken
 let swRegistration = null;
+let swReady = false;
 
-// Register service worker (สำคัญมาก)
+// Register service worker
 navigator.serviceWorker
   .register("./firebase-messaging-sw.js")
   .then((registration) => {
     console.log("✅ Service Worker registered");
     swRegistration = registration;
+    swReady = true;
   })
   .catch((err) => {
     console.error("❌ Service Worker register error", err);
@@ -31,14 +32,14 @@ navigator.serviceWorker
 // Button click
 document.getElementById("subscribeBtn").addEventListener("click", async () => {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("❌ ยังไม่ได้อนุญาตแจ้งเตือน");
+    if (!swReady || !swRegistration) {
+      alert("⏳ กำลังเตรียม Service Worker… ลองใหม่อีกครั้ง");
       return;
     }
 
-    if (!swRegistration) {
-      alert("❌ Service Worker ยังไม่พร้อม ลอง refresh หน้าเว็บ");
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      alert("❌ ยังไม่ได้อนุญาตแจ้งเตือน");
       return;
     }
 
