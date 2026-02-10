@@ -17,6 +17,9 @@ const messaging = firebase.messaging();
 let swRegistration = null;
 let swReady = false;
 
+// 🔧 ใส่ URL ของ Google Apps Script Web App
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyWoxpL2M-QUT5KTgW63YSH0aqkbrj5LukZ5O6l06F9foVPob0GD3gsRgiw4BBiQvI7/exec";
+
 // Register service worker
 navigator.serviceWorker
   .register("./firebase-messaging-sw.js")
@@ -49,7 +52,19 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     });
 
     console.log("🔥 FCM TOKEN:", token);
-    alert("✅ สมัครรับแจ้งเตือนแล้ว (ดู token ใน console)");
+
+    // ✅ ส่ง token + เวลากดรับแจ้ง ไปที่ GAS
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "saveToken",
+        token: token,
+        subscribedAt: new Date().toISOString()
+      })
+    });
+
+    alert("✅ สมัครรับแจ้งเตือนเรียบร้อย");
 
   } catch (err) {
     console.error("❌ ERROR:", err);
