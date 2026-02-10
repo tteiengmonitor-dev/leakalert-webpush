@@ -1,6 +1,6 @@
 // ===== Firebase config =====
 const firebaseConfig = {
-  apiKey: "AIzaSyDJh-QdJ00-1s-puzkumt_XWWhi1mwA61Q",
+  apiKey: "AIzaSyDJh-QdJ0O-1s-puzkumt_XWWHi1mwA61Q",
   authDomain: "leakalert-d4bfa.firebaseapp.com",
   projectId: "leakalert-d4bfa",
   storageBucket: "leakalert-d4bfa.firebasestorage.app",
