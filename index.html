@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-store" />
   <link rel="icon" href="./favicon.ico">
-  
+
   <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
@@ -35,22 +35,11 @@
       width:340px;
     }
 
-    .icon{
-      font-size:44px;
-      margin-bottom:8px;
-    }
+    .icon{ font-size:44px; margin-bottom:8px; }
 
-    h2{
-      margin:0 0 8px 0;
-      font-size:26px;
-      color:#1f2937;
-    }
+    h2{ margin:0 0 8px 0; font-size:26px; color:#1f2937; }
 
-    p{
-      margin:0 0 28px 0;
-      font-size:14px;
-      color:#6b7280;
-    }
+    p{ margin:0 0 28px 0; font-size:14px; color:#6b7280; }
 
     button{
       width:100%;
@@ -87,34 +76,87 @@
       font-size:12px;
       color:#9ca3af;
     }
+
+    /* iOS install overlay */
+    #iosInstallOverlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    #iosInstallCard{
+      background:white;
+      border-radius:16px;
+      padding:24px 22px;
+      max-width:360px;
+      text-align:center;
+      box-shadow:0 15px 40px rgba(0,0,0,.35);
+    }
+
+    #iosInstallCard b{
+      font-size:18px;
+      display:block;
+      margin-bottom:10px;
+    }
+
+    #iosInstallCard p{
+      font-size:14px;
+      margin-bottom:16px;
+      color:#374151;
+    }
+
+    #iosInstallCard button{
+      background:#2563eb;
+      box-shadow:none;
+    }
   </style>
 </head>
 <body>
+
+  <!-- banner เดิมของคุณ -->
   <div id="notifyBanner" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  background:#ff4d4f;
-  color:white;
-  padding:14px;
-  text-align:center;
-  font-weight:600;
-  z-index:9999;
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#ff4d4f;
+    color:white;
+    padding:14px;
+    text-align:center;
+    font-weight:600;
+    z-index:9999;
   ">
-  ⚠️ กรุณากดไอคอน 🔔 มุมขวาบนของ Browser แล้วเลือก Allow เพื่อเปิดแจ้งเตือน
   </div>
-  
+
+  <!-- iOS install overlay -->
+  <div id="iosInstallOverlay">
+    <div id="iosInstallCard">
+      <b>สำหรับ iPhone / iPad</b>
+      <p>
+        ต้องเพิ่มเว็บนี้ไปที่หน้าจอหลักก่อน<br>
+        ถึงจะเปิดการแจ้งเตือนได้
+        <br><br>
+        วิธีติดตั้ง:
+        <br>
+        กดปุ่ม <b>Share</b> ด้านล่างของ Safari
+        <br>
+        แล้วเลือก <b>Add to Home Screen</b>
+      </p>
+      <button id="closeIosGuide">เข้าใจแล้ว</button>
+    </div>
+  </div>
+
   <div class="card">
     <div class="icon">🔔</div>
-
     <h2>LeakAlert</h2>
     <p>กดเพื่อรับการแจ้งเตือนลมรั่วผ่าน Browser</p>
-
-    <!-- ❗ id เดิม ใช้ main.js ได้ทันที -->
     <button id="subscribeBtn">เปิดแจ้งเตือน</button>
-
     <div class="footer">
       TTEI · Air Leakage Monitoring
     </div>
@@ -122,10 +164,20 @@
 
   <noscript>กรุณาเปิด JavaScript</noscript>
 
-  <!-- แจ้งเตือน เปิด Allow Notification -->
-  <script>
+<script>
 const banner = document.getElementById("notifyBanner");
 const btn = document.getElementById("subscribeBtn");
+const iosOverlay = document.getElementById("iosInstallOverlay");
+const closeIosGuide = document.getElementById("closeIosGuide");
+
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function isInStandaloneMode(){
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
 
 function showInitialGuide(){
   banner.innerHTML =
@@ -143,7 +195,24 @@ function hideBanner(){
   banner.style.display = "none";
 }
 
+closeIosGuide.addEventListener("click",()=>{
+  iosOverlay.style.display="none";
+});
+
 btn.addEventListener("click", async () => {
+
+  /* -------------------------
+     iOS guard (สำคัญที่สุด)
+  --------------------------*/
+  if(isIOS() && !isInStandaloneMode()){
+    iosOverlay.style.display = "flex";
+    return;
+  }
+
+  if(!("Notification" in window)){
+    alert("Browser นี้ไม่รองรับ Notification");
+    return;
+  }
 
   showInitialGuide();
 
@@ -154,7 +223,6 @@ btn.addEventListener("click", async () => {
     return p;
   });
 
-  // ⏳ หน่วง 2 วินาที
   setTimeout(() => {
     if (!resolved && Notification.permission === "default") {
       showAddressBarGuide();
@@ -170,11 +238,13 @@ btn.addEventListener("click", async () => {
   if (permission === "denied") {
     banner.innerHTML =
       "❌ การแจ้งเตือนถูกบล็อก กรุณาเข้า Site Settings แล้วเปลี่ยนเป็น Allow";
+    banner.style.display = "block";
   }
 });
-  </script>
-  
-  <!-- ❗ main.js เดิม ไม่ต้องแก้ -->
-  <script src="main.js"></script>
+</script>
+
+<!-- main.js เดิม -->
+<script src="main.js"></script>
+
 </body>
 </html>
