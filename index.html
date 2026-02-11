@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-store" />
   <link rel="icon" href="./favicon.ico">
+  
   <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
@@ -120,9 +121,12 @@
   </div>
 
   <noscript>กรุณาเปิด JavaScript</noscript>
+
+  <!-- แจ้งเตือน เปิด Allow Notification -->
   <script>
+  const banner = document.getElementById("notifyBanner");
+
   function updateNotificationUI() {
-    const banner = document.getElementById("notifyBanner");
     const permission = Notification.permission;
 
     if (permission === "default") {
@@ -141,6 +145,14 @@
   }
 
   updateNotificationUI();
+
+  // 🔥 ตรวจจับการเปลี่ยน permission แบบ realtime
+  navigator.permissions.query({ name: "notifications" })
+    .then(function(permissionStatus) {
+      permissionStatus.onchange = function() {
+        updateNotificationUI();
+      };
+    });
   </script>
   
   <!-- ❗ main.js เดิม ไม่ต้องแก้ -->
