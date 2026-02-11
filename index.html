@@ -232,8 +232,9 @@ btn.addEventListener("click", async () => {
   const permission = await permissionPromise;
 
   if (permission === "granted") {
-    hideBanner();
-  }
+  hideBanner();
+  await window.subscribeFCM();
+}
 
   if (permission === "denied") {
     banner.innerHTML =
