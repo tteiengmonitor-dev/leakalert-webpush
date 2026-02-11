@@ -89,7 +89,22 @@
   </style>
 </head>
 <body>
-
+  <div id="notifyBanner" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#ff4d4f;
+  color:white;
+  padding:14px;
+  text-align:center;
+  font-weight:600;
+  z-index:9999;
+  ">
+  ⚠️ กรุณากดไอคอน 🔔 มุมขวาบนของ Browser แล้วเลือก Allow เพื่อเปิดแจ้งเตือน
+  </div>
+  
   <div class="card">
     <div class="icon">🔔</div>
 
@@ -105,7 +120,29 @@
   </div>
 
   <noscript>กรุณาเปิด JavaScript</noscript>
+  <script>
+  function updateNotificationUI() {
+    const banner = document.getElementById("notifyBanner");
+    const permission = Notification.permission;
 
+    if (permission === "default") {
+      banner.style.display = "block";
+    }
+
+    if (permission === "denied") {
+      banner.style.display = "block";
+      banner.innerHTML =
+        "❌ การแจ้งเตือนถูกบล็อก กรุณาเข้า Site Settings แล้วเปลี่ยนเป็น Allow";
+    }
+
+    if (permission === "granted") {
+      banner.style.display = "none";
+    }
+  }
+
+  updateNotificationUI();
+  </script>
+  
   <!-- ❗ main.js เดิม ไม่ต้องแก้ -->
   <script src="main.js"></script>
 </body>
