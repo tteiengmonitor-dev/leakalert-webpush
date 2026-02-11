@@ -8,10 +8,18 @@ const firebaseConfig = {
   appId: "1:397827695381:web:253e42a474b8abeb89ff1c"
 };
 
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+// ❗ FCM ใช้ไม่ได้บน iOS
+if (isIOS()) {
+  console.warn("❌ iOS does not support Firebase Web Push");
+}
+
 // Init Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Messaging
 const messaging = firebase.messaging();
 
 let swRegistration = null;
@@ -33,16 +41,24 @@ navigator.serviceWorker
     console.error("❌ Service Worker register error", err);
   });
 
-// Button click
-document.getElementById("subscribeBtn").addEventListener("click", async () => {
+
+// ให้หน้า HTML เรียกฟังก์ชันนี้แทน
+window.subscribeFCM = async function () {
+
+  // กัน iOS ซ้ำอีกชั้น (กันพลาด)
+  if (isIOS()) {
+    alert("iPhone / iPad ยังไม่รองรับการแจ้งเตือนผ่านระบบนี้");
+    return;
+  }
+
   try {
+
     if (!swReady || !swRegistration) {
       alert("⏳ กำลังเตรียม Service Worker… ลองใหม่อีกครั้ง");
       return;
     }
 
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
+    if (Notification.permission !== "granted") {
       alert("❌ ยังไม่ได้อนุญาตแจ้งเตือน");
       return;
     }
@@ -53,9 +69,13 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
       serviceWorkerRegistration: swRegistration
     });
 
+    if (!token) {
+      alert("❌ ไม่สามารถสร้าง token ได้");
+      return;
+    }
+
     console.log("🔥 FCM TOKEN:", token);
 
-    // ✅ ใช้ FormData (ไม่โดน CORS preflight)
     const formData = new FormData();
     formData.append("action", "saveToken");
     formData.append("token", token);
@@ -72,4 +92,4 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     console.error("❌ ERROR:", err);
     alert("❌ Error ดูที่ console");
   }
-});
+};
