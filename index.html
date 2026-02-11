@@ -65,98 +65,50 @@
       box-shadow:0 7px 16px rgba(221,36,118,.45);
     }
 
-    button:disabled{
-      background:#9ca3af;
-      box-shadow:none;
-      cursor:not-allowed;
-    }
-
     .footer{
       margin-top:28px;
       font-size:12px;
       color:#9ca3af;
     }
 
-    /* iOS install overlay */
-    #iosInstallOverlay{
+    #notSupportedMsg{
+      display:none;
+      margin-top:12px;
+      font-size:14px;
+      color:#dc2626;
+      font-weight:600;
+    }
+
+    #notifyBanner{
       display:none;
       position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      z-index:10000;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-
-    #iosInstallCard{
-      background:white;
-      border-radius:16px;
-      padding:24px 22px;
-      max-width:360px;
+      top:0;
+      left:0;
+      width:100%;
+      background:#ff4d4f;
+      color:white;
+      padding:14px;
       text-align:center;
-      box-shadow:0 15px 40px rgba(0,0,0,.35);
-    }
-
-    #iosInstallCard b{
-      font-size:18px;
-      display:block;
-      margin-bottom:10px;
-    }
-
-    #iosInstallCard p{
-      font-size:14px;
-      margin-bottom:16px;
-      color:#374151;
-    }
-
-    #iosInstallCard button{
-      background:#2563eb;
-      box-shadow:none;
+      font-weight:600;
+      z-index:9999;
     }
   </style>
 </head>
 <body>
 
-  <!-- banner เดิมของคุณ -->
-  <div id="notifyBanner" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    background:#ff4d4f;
-    color:white;
-    padding:14px;
-    text-align:center;
-    font-weight:600;
-    z-index:9999;
-  ">
-  </div>
-
-  <!-- iOS install overlay -->
-  <div id="iosInstallOverlay">
-    <div id="iosInstallCard">
-      <b>สำหรับ iPhone / iPad</b>
-      <p>
-        ต้องเพิ่มเว็บนี้ไปที่หน้าจอหลักก่อน<br>
-        ถึงจะเปิดการแจ้งเตือนได้
-        <br><br>
-        วิธีติดตั้ง:
-        <br>
-        กดปุ่ม <b>Share</b> ด้านล่างของ Safari
-        <br>
-        แล้วเลือก <b>Add to Home Screen</b>
-      </p>
-      <button id="closeIosGuide">เข้าใจแล้ว</button>
-    </div>
-  </div>
+  <div id="notifyBanner"></div>
 
   <div class="card">
     <div class="icon">🔔</div>
     <h2>LeakAlert</h2>
     <p>กดเพื่อรับการแจ้งเตือนลมรั่วผ่าน Browser</p>
+
     <button id="subscribeBtn">เปิดแจ้งเตือน</button>
+
+    <div id="notSupportedMsg">
+      ❌ อุปกรณ์หรือ Browser นี้ยังไม่รองรับการแจ้งเตือน
+    </div>
+
     <div class="footer">
       TTEI · Air Leakage Monitoring
     </div>
@@ -167,16 +119,17 @@
 <script>
 const banner = document.getElementById("notifyBanner");
 const btn = document.getElementById("subscribeBtn");
-const iosOverlay = document.getElementById("iosInstallOverlay");
-const closeIosGuide = document.getElementById("closeIosGuide");
+const notSupportedMsg = document.getElementById("notSupportedMsg");
 
 function isIOS(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-function isInStandaloneMode(){
-  return window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone === true;
+function isPushSupported(){
+  if (isIOS()) return false; // FCM ไม่รองรับ iOS
+  if (!("Notification" in window)) return false;
+  if (!("serviceWorker" in navigator)) return false;
+  return true;
 }
 
 function showInitialGuide(){
@@ -195,56 +148,56 @@ function hideBanner(){
   banner.style.display = "none";
 }
 
-closeIosGuide.addEventListener("click",()=>{
-  iosOverlay.style.display="none";
-});
+document.addEventListener("DOMContentLoaded", () => {
 
-btn.addEventListener("click", async () => {
-
-  /* -------------------------
-     iOS guard (สำคัญที่สุด)
-  --------------------------*/
-  if(isIOS() && !isInStandaloneMode()){
-    iosOverlay.style.display = "flex";
+  if (!isPushSupported()) {
+    btn.style.display = "none";
+    notSupportedMsg.style.display = "block";
     return;
   }
 
-  if(!("Notification" in window)){
-    alert("Browser นี้ไม่รองรับ Notification");
-    return;
-  }
+  notSupportedMsg.style.display = "none";
 
-  showInitialGuide();
+  btn.addEventListener("click", async () => {
 
-  let resolved = false;
+    showInitialGuide();
 
-  const permissionPromise = Notification.requestPermission().then(p => {
-    resolved = true;
-    return p;
+    let resolved = false;
+
+    const permissionPromise = Notification.requestPermission().then(p => {
+      resolved = true;
+      return p;
+    });
+
+    setTimeout(() => {
+      if (!resolved && Notification.permission === "default") {
+        showAddressBarGuide();
+      }
+    }, 2000);
+
+    const permission = await permissionPromise;
+
+    if (permission === "granted") {
+      hideBanner();
+      if (window.subscribeFCM) {
+        await window.subscribeFCM();
+      } else {
+        console.error("subscribeFCM is not loaded");
+      }
+    }
+
+    if (permission === "denied") {
+      banner.innerHTML =
+        "❌ การแจ้งเตือนถูกบล็อก กรุณาเข้า Site Settings แล้วเปลี่ยนเป็น Allow";
+      banner.style.display = "block";
+    }
+
   });
 
-  setTimeout(() => {
-    if (!resolved && Notification.permission === "default") {
-      showAddressBarGuide();
-    }
-  }, 2000);
-
-  const permission = await permissionPromise;
-
-  if (permission === "granted") {
-  hideBanner();
-  await window.subscribeFCM();
-}
-
-  if (permission === "denied") {
-    banner.innerHTML =
-      "❌ การแจ้งเตือนถูกบล็อก กรุณาเข้า Site Settings แล้วเปลี่ยนเป็น Allow";
-    banner.style.display = "block";
-  }
 });
 </script>
 
-<!-- main.js เดิม -->
+<!-- main.js -->
 <script src="main.js"></script>
 
 </body>
